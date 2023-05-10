@@ -118,7 +118,7 @@ while ingame:
     clock.tick(120)
 
     #Pre-draw => draw background on last position
-    BACKGROUND.preDraw(player,missileList,foesList,image_fond)
+    BACKGROUND.preDraw(player,missileList,foesList,borderList,image_fond)
 
     #Draw all objects (player, missiles, foes, border)
     player.draw()
