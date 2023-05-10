@@ -191,6 +191,23 @@ while ingame:
             player.bounce(border.getAxis())
             if border.isOuter():
                 border.setAlpha(255)
+    for foe in foesList:
+        if foe.getRect().colliderect(player.getRect()):
+            foesList.remove(foe)
+            foe.drawBackground(image_fond)
+            player.life -= 1
+            BACKGROUND.update_life(player)
+            """
+            if player.life == 0:
+                BACKGROUND.dead(player)
+            """
+    for mis in missileList:
+        for foe in foesList:
+            if mis.getRect().colliderect(foe.getRect()):
+                player.score += 1
+                foesList.remove(foe)
+                foe.drawBackground(image_fond)
+                missileList.remove(mis)
     
 
     #Check state of wave

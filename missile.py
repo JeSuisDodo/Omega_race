@@ -22,6 +22,9 @@ class Missile:
     def type(self):
         return Missile
     
+    def getRect(self):
+        return self.rect
+
     def getHitbox(self):
         """
         Return the top-left and bottom right coordinates of
