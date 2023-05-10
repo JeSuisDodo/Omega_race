@@ -314,11 +314,13 @@ class Fond:
         image = pygame.image.load("fond.png")
         self.screen.blit(image,(0,0))
 
-    def preDraw(self,player,Missiles,Foes,background):
+    def preDraw(self,player,Missiles,Foes,Borders,background):
         player.drawBackground(background)
         for Mi in Missiles:
             Mi.drawBackground(background)
         for foe in Foes:
             foe.drawBackground(background)
+        for border in Borders:
+            border.drawBackground(background)
         
         

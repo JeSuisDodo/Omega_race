@@ -33,6 +33,11 @@ class border():
     
     def isOuter(self):
         return self.outer
+    
+    def getRect(self):
+        if self.axis == 'x':
+            return py.Rect(self.x,self.y,self.l,3)
+        return py.Rect(self.x,self.y,3,self.h)
 
     def decreaseAlpha(self,n:int):
         self.alpha -= n
@@ -48,6 +53,12 @@ class border():
 
     def draw(self,color):
         py.draw.line(self.screen, color, (self.x,self.y), (self.x+self.l,self.y+self.h),3)
+
+    def drawBackground(self, background):
+        if self.alpha > 0:
+            rect = self.getRect()
+            img = background.subsurface(rect)
+            self.screen.blit(img,rect)
 
     def collides_with_rect(self, obj):
         if obj.getRect().clipline(self.line):
