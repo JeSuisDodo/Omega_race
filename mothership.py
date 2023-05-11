@@ -4,9 +4,11 @@ class MotherShip:
 	"""
 	Create a mothership
 	"""
-	def __init__(self,x,y,screen):
+	def __init__(self,x,y,wave,rotation,screen):
 		self.x = x
 		self.y = y
+		self.speed = wave - 1
+		self.rot = rotation
 		self.texture = [py.image.load("mothership1.png"),py.image.load("mothership2.png")]
 		for i in range(len(self.texture)):
 			self.texture[i] = py.transform.scale(self.texture[i],(32,32))

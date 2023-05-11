@@ -8,13 +8,15 @@ class SuperShip:
 	"""
 	Create a super ennemie ship
 	"""
-	def __init__(self,x,y,screen):
+	def __init__(self,x,y,wave,rotation,screen):
 		self.x = x
 		self.y = y
 		self.posX = x
 		self.posY = y
 		angle = [45,135,225,315][randint(0,3)]
 		self.vector = [cos(deg2rad(angle)),sin(-deg2rad(angle))]
+		self.speed = wave - 1
+		self.rot = rotation
 		self.texture = [py.image.load("supership"+str(i)+".png") for i in range(3)]
 		for i in range(len(self.texture)):
 			self.texture[i] = py.transform.scale(self.texture[i],(32,32))
