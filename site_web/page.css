@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.col {
+    width: 100%;
+    height: 33.33%;
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+.col:hover {
+    height: 66.66%;
+    transition: all 0.5s ease;
+}
+
+.col:nth-child(1) {
+    background-color: #ff5858;
+}
+
+.col:nth-child(2) {
+    background-color: #ffb758;
+}
+
+.col:nth-child(3) {
+    background-color: #38c172;
+}
