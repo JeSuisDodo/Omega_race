@@ -4,11 +4,11 @@ import sys
 import constants
 import spaceship
 import font
-import border
-import mine
-import droid
-import mothership
-import supership
+from border import border
+from mine import Mine
+from droid import Droid
+from mothership import MotherShip
+from supership import SuperShip
 from random import randint
 ###################################################
 # Variables                                       #
@@ -17,6 +17,7 @@ ingame = True
 pause = False
 wave = 0
 timeBeforeNextWave = 0
+ClockWiseMove = bool(randint(0,1))
 
 borderList = []
 foesList = []
@@ -53,40 +54,58 @@ def createBorder(screen)->list:
     L = []
     #Outer borders
     for i in range(3):
-        L.append(border.border(5+425*i,5,0,420,'x',"Outer",screen))
-        L.append(border.border(5+425*i,705,0,420,'x',"Outer",screen))
-        L.append(border.border(5,5+238*i,230, 0, 'y',"Outer",screen))
-        L.append(border.border(1275,5+238*i,230, 0, 'y',"Outer",screen))
+        L.append(border(5+425*i,5,0,425,'x',"Outer",screen))
+        L.append(border(5+425*i,712,0,425,'x',"Outer",screen))
+        L.append(border(5,5+238*i,238, 0, 'y',"Outer",screen))
+        L.append(border(1272,5+238*i,238, 0, 'y',"Outer",screen))
     #Inner borders
-    for j in range(2):
-        L.append(border.border(430,245+235*j,0,420,'x','Inner',screen))
-        L.append(border.border(430+420*j,245,235,0,'y','Inner',screen))
+    for i in range(2):
+        L.append(border(429,243+234*i,0,422,'x','Inner',screen))
+        L.append(border(429+422*i,243,234,0,'y','Inner',screen))
     
     return L
 
-def addNewEnnemie(foesList,name,screen):
+def addNewEnnemie(foesList,name,wave,rotation,screen):
     """
     """
-    x = randint(40,constants.WIDTH_SCREEN-40)
-    y = randint(constants.HEIGHT_SCREEN//4*3,constants.HEIGHT_SCREEN-40)
+    x = randint(9,1239)
+    y = randint(478,679)
     
     match name:
         case "droid":
-            foesList.append(droid.Droid(x,y,screen))
+            foesList.append(Droid(x,y,wave,rotation,screen))
         case "mothership":
-            foesList.append(mothership.MotherShip(x,y,screen))
+            foesList.append(MotherShip(x,y,wave,rotation,screen))
         case "supership":
-            foesList.append(supership.SuperShip(x,y,screen))
+            foesList.append(SuperShip(x,y,wave,rotation,screen))
 
-def new_wave(wave,screen)->list:
+def new_wave(wave,ClockWiseMove,screen)->list:
     """
     """
     L = []
-    for i in range(7):
-        addNewEnnemie(L,"droid",screen)
-    addNewEnnemie(L,"mothership",screen)
-    #addNewEnnemie(L,"supership",screen)
+    #if wave%10==0:
+        #L.append(Boss(wave,screen))
+    #else
+    for i in range(7+wave):
+        addNewEnnemie(L,"droid",wave,ClockWiseMove,screen)
+    for i in range(1+wave//3):
+        addNewEnnemie(L,"mothership",wave,ClockWiseMove,screen)
+    for i in range(wave//10):
+        addNewEnnemie(L,"supership",wave,ClockWiseMove,screen)
+    
     return L
+
+def getPresenceOfSuperEnnemy(foesList):
+    info = [False,False]
+    for foe in foesList:
+        if (isinstance(foe,MotherShip) and foe.getNumberOfTransform() == 
+            0) or (isinstance(foe,Droid) and foe.getNumberOfTransform() == 1):
+            info[0] = True
+        elif isinstance(foe,SuperShip) or (isinstance(foe,
+        MotherShip) and foe.getNumberOfTransform() == 
+        1) or (isinstance(foe,Droid) and foe.getNumberOfTransform() == 2):
+            info[1] = True
+    return info
 
 ###################################################
 # Init                                            #
@@ -102,10 +121,8 @@ borderList = createBorder(screen)
 ###################################################
 # Welcome screen with rules                       #
 ###################################################
-#menu
 
-
-
+print(ClockWiseMove)
 BACKGROUND.menu()
 
 image_fond = pygame.image.load("fond.png")
@@ -156,7 +173,7 @@ while ingame:
 
     #Moving ennemies
     for foe in foesList:
-        if foe.type() != mine.Mine:
+        if not(isinstance(foe,Mine)):
             foe.move(missileList, foesList, player.getPos())
     """
     while(len(foesList) < 10):
@@ -183,7 +200,7 @@ while ingame:
                 mis.die(image_fond)
                 missileList.remove(mis)
         for foe in foesList:
-            if foe.type() != mine.Mine:
+            if isinstance(foe,SuperShip):
                 if border.collides_with_rect(foe):
                     foe.bounce(border.getAxis())
 
@@ -198,7 +215,7 @@ while ingame:
         if timeBeforeNextWave <= 0:
             timeBeforeNextWave = 500
             wave += 1
-            foesList = new_wave(wave, screen)
+            foesList = new_wave(wave, ClockWiseMove, screen)
         else:
             timeBeforeNextWave -= 1
 

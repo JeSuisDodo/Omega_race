@@ -1,13 +1,12 @@
 import pygame as py
 from numpy import cos, sin, deg2rad
-import constants
 
 class Missile:
     """
     Create a missile object
     """
 
-    def __init__(self, angle:int, harmPlayer:bool, x:int, y:int,screen):
+    def __init__(self, angle:int, harmPlayer:bool, x:int, y:int,screen:py.Surface):
         self.x = x
         self.y = y
         self.posX = x
@@ -17,6 +16,11 @@ class Missile:
         self.lastRect = None
         self.angle = angle
         self.canHarmPlayer = harmPlayer
+        if harmPlayer:
+            w, h = self.texture.get_size()
+            for i in range(w):
+                for j in range(h):
+                    self.texture.set_at((i,j),py.Color((255,100,100)))
         self.screen = screen
 
     def type(self):

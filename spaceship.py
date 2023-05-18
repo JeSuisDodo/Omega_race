@@ -3,7 +3,7 @@ from constants import *
 from random import randint
 from numpy import cos, sin, deg2rad
 import border
-import missile
+from missile import Missile
 
 class Spaceship():
     """
@@ -36,7 +36,7 @@ class Spaceship():
         return self.rect
     
     def getPos(self):
-        return (round(self.x),round(self.y))
+        return (round(self.x)-24,round(self.y)-21)
 
     def draw(self):
         img = self.texture[self.boost]
@@ -106,9 +106,12 @@ class Spaceship():
         self.y += self.mvtVector[1]
 
     def shoot(self,missileList):
-        if len(missileList) < 4:
-            missileList.append(missile.Missile(self.angle,
-                                               False,self.x,self.y,self.screen))
+        count = 0
+        for mis in missileList:
+            if mis.fromPlayer():
+                count += 1
+        if count < 4:
+            missileList.append(Missile(self.angle,False,self.x,self.y,self.screen))
         
 
     def death(self):
