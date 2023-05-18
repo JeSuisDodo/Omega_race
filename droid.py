@@ -1,12 +1,20 @@
 import pygame as py
 from random import randint
 from numpy import log
+from mothership import MotherShip
 
 class Droid:
     """
     Create a droid.
     It is a passive slow ennemy moving around the center.
     """
+    texture = [py.image.load("droid1.png"),py.image.load("droid2.png")]
+    for i in range(len(texture)):
+        texture[i] = py.transform.scale(texture[i],(32,32))
+    motherTexture = [py.image.load("mothership1.png"),py.image.load("mothership2.png")]
+    for i in range(len(motherTexture)):
+        motherTexture[i] = py.transform.scale(motherTexture[i],(32,32))
+    transformTime = 500
 
     def __init__(self,x:int,y:int,wave:int,rotation:bool,screen:py.Surface):
         self.x = x
@@ -19,25 +27,23 @@ class Droid:
         else:
             self.step = 2
             self.objectiv = randint(852,1239)
-        self.speed = log(wave+200)
+        self.wave = wave
+        self.speed = log(wave)
         self.rot = rotation
-        self.texture = [py.image.load("droid1.png"),py.image.load("droid2.png")]
-        for i in range(len(self.texture)):
-            self.texture[i] = py.transform.scale(self.texture[i],(32,32))
         self.texturePos = 0
         self.rect = self.texture[0].get_rect(topleft=(x,y))
         self.lastRect = None
-        self.transformTime = randint(2000,2500)
+        self.timeBeforeTransform = randint(1000,2500)
         self.screen = screen
-    
-    def type(self):
-        return Droid
     
     def getRect(self):
         return self.rect
     
     def draw(self):
-        self.screen.blit(self.texture[self.texturePos//50],self.rect)
+        if self.timeBeforeTransform == 0 and self.transformTime%40<20:
+            self.screen.blit(self.motherTexture[self.texturePos//50],self.rect)
+        else:
+            self.screen.blit(self.texture[self.texturePos//50],self.rect)
         self.texturePos += 1
         if self.texturePos >= 100:
             self.texturePos = 0
@@ -77,6 +83,15 @@ class Droid:
         return False
     
     def move(self, missileList, foesList, playerPos):
+        if self.transformTime == 0:
+            foesList.append(MotherShip(self.posX,self.posY,self.wave,self.rot,self.screen))
+            foesList.remove(self)
+            return
+        elif self.timeBeforeTransform == 0 and self.transformTime > 0:
+            self.transformTime -= 1
+            return
+        
+        self.timeBeforeTransform -= 1
         if self.objectivReached():
             if self.rot:
                 self.step += 1
@@ -102,6 +117,3 @@ class Droid:
         self.posX = round(self.x)
         self.posY = round(self.y)
         self.rect = self.texture[0].get_rect(topleft=(self.posX,self.posY))
-
-    def bounce(self, axis):
-        pass
