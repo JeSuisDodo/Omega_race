@@ -144,10 +144,10 @@ class Fond:
             for i in range(3):
                     self.screen.blit(self.font[co_y + i][co_x],(co_x*80,(co_y + i)*80))
 
-    def update_score(self,player):
+    def update_score(self,score):
 
         police_score = pygame.font.Font(None, 30)
-        score_text = police_score.render("Score : " + str(player.score), True, constants.WHITE)
+        score_text = police_score.render("Score : " + str(score), True, constants.WHITE)
         scoreRect = score_text.get_rect()
         scoreRect.center = (constants.Center[0], constants.Center[1]-30)
         self.screen.blit(score_text,scoreRect)

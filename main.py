@@ -18,15 +18,19 @@ pause = False
 wave = 0
 timeBeforeNextWave = 0
 ClockWiseMove = bool(randint(0,1))
+score = 0
 
 borderList = []
 foesList = []
 missileList = []
-
 ###################################################
 # Functions                                       #
 ###################################################
-def getKeyDown():
+def getKeyDown()->list:
+    """
+    Return pressed keys
+    If the quit button is pressed, leave the game.
+    """
     for event in pygame.event.get():
         global ingame
         if event.type == pygame.QUIT: #N'a pas l'air de fonctionner
@@ -38,35 +42,42 @@ def getKeyDown():
         return None
 
 def wait():
+    """
+    Wait for the player to touch a key.
+    """
     while getKeyDown() == None:
         pygame.display.update()
 
 
 def leave():
+    """
+    Quit pygame.
+    """
     pygame.mixer.music.stop()
     pygame.quit()
     sys.exit()
 
-def createBorder(screen)->list:
+def createBorder(screen:pygame.Surface)->list:
     """
     Create the borders and return them in a list
     """
     L = []
     #Outer borders
     for i in range(3):
-        L.append(border(5+425*i,5,0,425,'x',"Outer",screen))
-        L.append(border(5+425*i,712,0,425,'x',"Outer",screen))
-        L.append(border(5,5+238*i,238, 0, 'y',"Outer",screen))
-        L.append(border(1272,5+238*i,238, 0, 'y',"Outer",screen))
+        L.append(border(5+425*i,5,0,425,[0,1],"Outer",screen))
+        L.append(border(5+425*i,712,0,425,[0,-1],"Outer",screen))
+        L.append(border(5,5+238*i,238, 0, [1,0],"Outer",screen))
+        L.append(border(1272,5+238*i,238, 0, [-1,0],"Outer",screen))
     #Inner borders
-    for i in range(2):
-        L.append(border(429,243+234*i,0,422,'x','Inner',screen))
-        L.append(border(429+422*i,243,234,0,'y','Inner',screen))
-    
+    L.append(border(429,243,0,422,[0,-1],'Inner',screen))
+    L.append(border(429,477,0,422,[0,1],'Inner',screen))
+    L.append(border(429,243,234,0,[-1,0],'Inner',screen))
+    L.append(border(851,243,234,0,[1,0],'Inner',screen))
     return L
 
-def addNewEnnemie(foesList,name,wave,rotation,screen):
+def addNewEnnemie(foesList:list,name:str,wave:int,rotation:bool,screen:pygame.Surface):
     """
+    Add an ennemy.
     """
     x = randint(9,1239)
     y = randint(478,679)
@@ -79,8 +90,10 @@ def addNewEnnemie(foesList,name,wave,rotation,screen):
         case "supership":
             foesList.append(SuperShip(x,y,wave,rotation,screen))
 
-def new_wave(wave,ClockWiseMove,screen)->list:
+def new_wave(wave:int,ClockWiseMove:bool,screen:pygame.Surface)->list:
     """
+    Create and return a new set of ennemies matching
+    the current wave.
     """
     L = []
     #if wave%10==0:
@@ -92,20 +105,7 @@ def new_wave(wave,ClockWiseMove,screen)->list:
         addNewEnnemie(L,"mothership",wave,ClockWiseMove,screen)
     for i in range(wave//10):
         addNewEnnemie(L,"supership",wave,ClockWiseMove,screen)
-    
     return L
-
-def getPresenceOfSuperEnnemy(foesList):
-    info = [False,False]
-    for foe in foesList:
-        if (isinstance(foe,MotherShip) and foe.getNumberOfTransform() == 
-            0) or (isinstance(foe,Droid) and foe.getNumberOfTransform() == 1):
-            info[0] = True
-        elif isinstance(foe,SuperShip) or (isinstance(foe,
-        MotherShip) and foe.getNumberOfTransform() == 
-        1) or (isinstance(foe,Droid) and foe.getNumberOfTransform() == 2):
-            info[1] = True
-    return info
 
 ###################################################
 # Init                                            #
@@ -118,20 +118,21 @@ BACKGROUND = font.Fond(screen)
 pygame.display.set_caption("Omega Race")
 player = spaceship.Spaceship(screen)
 borderList = createBorder(screen)
+image_fond = pygame.image.load("fond.png")
+
 ###################################################
 # Welcome screen with rules                       #
 ###################################################
-
-print(ClockWiseMove)
 BACKGROUND.menu()
 
-image_fond = pygame.image.load("fond.png")
 screen.blit(image_fond,(0,0))
 BACKGROUND.update_life(player)
-BACKGROUND.update_score(player)
+BACKGROUND.update_score(score)
+
+
 while ingame:
 
-    pygame.time.delay(2)
+    pygame.time.delay(5)
     clock.tick(120)
 
     #Pre-draw => draw background on last position
@@ -151,10 +152,10 @@ while ingame:
             border.draw(constants.WHITE)
 
     pygame.display.update()
-
+    
     #Check keys down
     keys = getKeyDown()
-    if keys == K_x:
+    if keys == K_x or keys == K_SPACE:
         player.shoot(missileList)
     if keys == K_p:
         BACKGROUND.pause(player)
@@ -162,7 +163,7 @@ while ingame:
     #Check continuously pressed keys
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        player.booster()
+        player.start_booster()
     else:
         player.stop_booster()
     if keys[pygame.K_LEFT]:
@@ -175,17 +176,6 @@ while ingame:
     for foe in foesList:
         if not(isinstance(foe,Mine)):
             foe.move(missileList, foesList, player.getPos())
-    """
-    while(len(foesList) < 10):
-        foesList.append(mine.Mine(randint(20,1200),randint(500,680),screen))
-    for foe in foesList:
-        if foe.is_colliding_with_spaceship(player):
-            foesList.remove(foe)
-            player.life -= 1
-            BACKGROUND.update_life(player)
-            if player.life == 0:
-                BACKGROUND.dead(player)
-    """
     #Moving missiles
     for mis in missileList:
         mis.move()
@@ -202,10 +192,10 @@ while ingame:
         for foe in foesList:
             if isinstance(foe,SuperShip):
                 if border.collides_with_rect(foe):
-                    foe.bounce(border.getAxis())
+                    foe.bounce(border.getNormalVector())
 
         if border.collides_with_rect(player):
-            player.bounce(border.getAxis())
+            player.bounce(border.getNormalVector())
             if border.isOuter():
                 border.setAlpha(255)
     
