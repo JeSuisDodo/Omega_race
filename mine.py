@@ -1,27 +1,53 @@
 import pygame as py
-import random
 
 class Mine:
-    def __init__(self, x, y, screen):
+    """
+    Class of the mine.
+    Mine are stationary ennmies that can hurt the player.
+    They are destroyed by shooting at them.
+    
+    py.Surface texture : texture of the mine
+    """
+    texture = py.image.load("mine.png")
+
+
+    def __init__(self, x:int, y:int, screen:py.Surface):
+        """
+        Create a new Mine object.
+        
+        int x,y : postion of the mine
+        py.Rect rect : rect object describing the mine
+        py.Surface screen : screen of the game
+        """
         self.x = x
         self.y = y
-        self.texture = py.image.load("mine.png")
-        self.background = py.image.load("fond.png")
         self.rect = self.texture.get_rect(center=self.texture.get_rect(center=(round(self.x),round(self.y))).center)
         self.screen = screen
-
-    def type(self):
-        return Mine
     
-    def getRect(self):
+    def getRect(self)->py.Rect:
+        """
+        Return the rect of the mine.
+        """
         return self.rect
     
-    def getHitbox(self):
+    def getHitbox(self)->tuple:
+        """
+        Return the top-left and bottom right coordinates of
+        the rect made by the missile
+        """
         return (self.x,self.y,self.x+8,self.y+8)
 
-    def drawBackground(self, background):
+    def drawBackground(self, background:py.Surface):
+        """
+        Draw the background on the mine's position.
+
+        py.Surface background : background's image
+        """
         img = background.subsurface(self.rect)
         self.screen.blit(img,self.rect)
 
     def draw(self):
+        """
+        Draw the mine on the screen
+        """
         self.screen.blit(self.texture,self.rect)
