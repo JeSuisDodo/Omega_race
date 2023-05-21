@@ -1,6 +1,6 @@
 import pygame as py
 
-class border():
+class Border():
     """
     Class of the border.
     They are straight lines that nothing can go trough.
@@ -13,7 +13,7 @@ class border():
     def __init__(self, x:int, y:int, h:int, w:int, vectNormal:tuple, type:str, screen) -> None:
         """
         Create a new border object.
-        
+
         int x,y : top left of the border
         int h : height of the border
         int w : width of the border
@@ -108,9 +108,7 @@ class border():
 
         obj : test object which can be any ennemy
         """
-        if obj.getRect().clipline(self.line):
-            return True
-        return False
+        return obj.getRect().clipline(self.line)
     
     def collides_with_line(self,obj)->bool:
         """

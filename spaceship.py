@@ -8,37 +8,34 @@ class Spaceship():
     """
     Class of the spaceship that the player controls.
 
-    float x,y : position of the spaceship
-    int angle : angle of the spaceship in degrees
-    list[float] mvtVector : vector of the movement
-    list[py.Surface] texture : list of textures of the spaceship
-    bool boost : state of the booster
-    py.Rect rect : current rect
-    py.Rect lastRect : rect of the last frame
-    py.Surface img : current image
-    int life : lifes remaining
+    list[py.Surface] texture : list of textures of the spaceship  
     """
-    x = randint(20,WIDTH_SCREEN-20)
-    y = randint(20,HEIGHT_SCREEN//4)
-    angle = 0
-    mvtVector = [0,0]
-    bouncing = False
     texture = [py.transform.scale(py.image.load("spaceship.png"),(24,21))]
     texture.append(py.transform.scale(py.image.load("spaceship_booster.png"),(24,21)))
-    boost = False
-    rect = texture[0].get_rect()
-    lastRect = None
-    img = texture[0]
     life = 3
-
 
     def __init__(self, screen:py.Surface):
         """
         Create a new Spaceship object.
 
+        float x,y : position of the spaceship
+        int angle : angle of the spaceship in degrees
+        list[float] mvtVector : vector of the movement
+        bool boost : state of the booster
+        py.Rect rect : current rect
+        py.Rect lastRect : rect of the last frame
+        py.Surface img : current image
         py.Surface screen : screen of the game
         py.mixer.Sound Colision : sounds of colisions
         """
+        self.x = randint(20,WIDTH_SCREEN-20)
+        self.y = randint(20,HEIGHT_SCREEN//4)
+        self.angle = 0
+        self.mvtVector = [0,0]
+        self.boost = False
+        self.rect = self.texture[0].get_rect()
+        self.lastRect = None
+        self.img = self.texture[0]
         self.screen = screen
         self.Colision = [py.mixer.Sound("Colision_1.wav"),py.mixer.Sound("Colision_2.wav")]
 
@@ -99,7 +96,7 @@ class Spaceship():
         """
         Turn the spaceship on the left
         """
-        self.angle += 4
+        self.angle += 3
         if self.angle > 360:
             self.angle -= 360
 
@@ -107,7 +104,7 @@ class Spaceship():
         """
         Turn the spaceship on the right
         """
-        self.angle -= 4
+        self.angle -= 3
         if self.angle < 0:
             self.angle += 360
 
@@ -158,7 +155,8 @@ class Spaceship():
             if mis.fromPlayer():
                 count += 1
         if count < 4:
-            missileList.append(Missile(self.angle,False,self.x,self.y,self.screen))
+            x,y = self.rect.center
+            missileList.append(Missile(self.angle,False,x,y,self.screen))
         
     def death(self):
         if self.life == 0:
@@ -171,7 +169,6 @@ class Spaceship():
         
         list[int] vect : normal vector of the border the supership bounced on
         """
-        self.bouncing = True
         self.x -= self.mvtVector[0]
         self.y -= self.mvtVector[1]
         self.x += vect[0]

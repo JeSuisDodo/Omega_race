@@ -312,15 +312,4 @@ class Fond:
         player.score = 0
         self.update_score
         image = pygame.image.load("fond.png")
-        self.screen.blit(image,(0,0))
-
-    def preDraw(self,player,Missiles,Foes,Borders,background):
-        player.drawBackground(background)
-        for Mi in Missiles:
-            Mi.drawBackground(background)
-        for foe in Foes:
-            foe.drawBackground(background)
-        for border in Borders:
-            border.drawBackground(background)
-        
-        
+        self.screen.blit(image,(0,0))        

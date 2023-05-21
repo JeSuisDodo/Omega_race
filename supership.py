@@ -12,12 +12,10 @@ class SuperShip:
 
 	list[py.Surface] texture : all the textures of the ennemy
 	int texturePos : the current texture it displays
-	int attackCooldown : time in gameloops before the next attack
 	"""
 	texture = [py.transform.scale(py.image.load("supership"+str(i)+".png"),
                                   (32,32)) for i in range(1,6)]
 	texturePos = 0
-	attackCooldown = 500
 	
 	def __init__(self,x:float,y:float,wave:int,rotation:bool,screen:py.Surface):
 		"""
@@ -26,6 +24,7 @@ class SuperShip:
 		int wave : current wave
 		float speed : speed of the ennemy based on the wave
 		bool rot : tell if the ennemy starts moving clock-wise
+		int attackCooldown : time in gameloops before the next attack
 		py.Rect rect : current rect object of the ennemy
 		py.Surface screen : the screen of the game
 		"""
@@ -37,13 +36,12 @@ class SuperShip:
 			angle = [135,225][randint(0,1)]
 		else:
 			angle = [45,315][randint(0,1)]
-		self.vector = [cos(deg2rad(angle)),sin(-deg2rad(angle))]
+		self.vector = [0.5 * cos(deg2rad(angle)),0.5 * sin(-deg2rad(angle))]
 		self.wave = wave
 		self.speed = log(wave+1)*3
 		self.rot = rotation
-		
+		self.attackCooldown = 500
 		self.rect = self.texture[0].get_rect(topleft=(self.posX,self.posY))
-		
 		self.screen = screen
 
 	def getRect(self)->py.Rect:
@@ -51,6 +49,12 @@ class SuperShip:
 		Return current rect.
 		"""
 		return self.rect
+	
+	def getCo(self)->tuple[int]:
+		"""
+		Return a tuple of rounded coordinates.
+		"""
+		return (self.posX,self.posY)
 	
 	def draw(self):
 		"""
@@ -93,39 +97,40 @@ class SuperShip:
 
 	def attack(self,missileList:list[Missile],foesList:list,playerPos:tuple[int]):
 		"""
-		The supership attacks. It can land a mine or shoot multiple missiles
+		The supership try to attack. It can land a mine or shoot multiple missiles
 		at the player.
 
 		list[Missile] missileList : the list of all the missiles
 		list foesList : the list of all the ennemies and the mines
 		tuple[int] playerPos : position of the player
 		"""
-		x = self.posX + 16
-		y = self.posY + 16
-		if randint(1,5) == 1:
-			foesList.append(Mine(x,y,self.screen))
+		if self.attackCooldown <= 0:
+			self.attackCooldown = randint(400+round(400/self.wave),500+round(500/self.wave))
+			x = self.posX + 16
+			y = self.posY + 16
+			if randint(1,5) == 1:
+				foesList.append(Mine(x,y,self.screen))
+			else:
+				shootAngle = self.getShootAngle(playerPos)
+				missileList.append(Missile(shootAngle, True, x, y, self.screen))
+				missileList.append(Missile(shootAngle+5, True, x, y, self.screen))
+				missileList.append(Missile(shootAngle-5, True, x, y, self.screen))
 		else:
-			shootAngle = self.getShootAngle(playerPos)
-			missileList.append(Missile(shootAngle, True, x, y, self.screen))
-			missileList.append(Missile(shootAngle+5, True, x, y, self.screen))
-			missileList.append(Missile(shootAngle-5, True, x, y, self.screen))
+			self.attackCooldown -= 1
 	
-	def move(self, missileList:list[Missile], foesList:list, playerPos:tuple[int]):
+	def move(self, foesList:list):
 		"""
 		Move the supership.
 		Then update the rounded position and the rect.
 		Finally, check if it can attack.
+
+		list foesList (not used) -> here for an easy use of move() in general
 		"""
 		self.x += self.speed * self.vector[0]
 		self.y += self.speed * self.vector[1]
 		self.posX = round(self.x)
 		self.posY = round(self.y)
 		self.rect = self.texture[0].get_rect(topleft=(self.posX,self.posY))
-		if self.attackCooldown <= 0:
-			self.attackCooldown = randint(400+400/self.wave,500+500/self.wave)
-			self.attack(missileList, foesList, playerPos)
-		else:
-			self.attackCooldown -= 1
 	
 	def bounce(self, vect:list[int]):
 		"""

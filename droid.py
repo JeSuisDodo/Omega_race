@@ -14,7 +14,6 @@ class Droid:
     int transfromTime : time left in gameloops before it completes
         its transformation
     int texturePos : the current texture it displays
-    py.Rect lastRect : rect object of the last position
     """
     texture = [py.image.load("droid1.png"),py.image.load("droid2.png")]
     for i in range(len(texture)):
@@ -24,7 +23,6 @@ class Droid:
         motherTexture[i] = py.transform.scale(motherTexture[i],(32,32))
     transformTime = 500
     texturePos = 0
-    lastRect = None
 
     def __init__(self,x:float,y:float,wave:int,rotation:bool,screen:py.Surface):
         """
@@ -41,6 +39,7 @@ class Droid:
         float speed : speed of the ennemy based on the wave
         bool rot : tell if the ennemy is moving clock-wise
         py.Rect rect : current rect object of the ennemy
+        py.Rect lastRect : rect object of the last position
         py.Surface screen : the screen of the game
         int timeBeforeTransform : time left in gameloops before the
             ennemy transform
@@ -59,6 +58,7 @@ class Droid:
         self.speed = log(wave)
         self.rot = rotation
         self.rect = self.texture[0].get_rect(topleft=(x,y))
+        self.lastRect = None
         self.screen = screen
         self.timeBeforeTransform = randint(1000,2500)
     
@@ -67,6 +67,12 @@ class Droid:
         Return the current rect.
         """
         return self.rect
+    
+    def getCo(self)->tuple[int]:
+        """
+        Return a tuple of rounded position.
+        """
+        return (self.posX,self.posY)
     
     def draw(self):
         """
@@ -128,15 +134,13 @@ class Droid:
                 return True
         return False
     
-    def move(self, missileList:list, foesList:list, playerPos:tuple[int]):
+    def move(self, foesList:list):
         """
         Move the ennemy if it is not during the transformation into a
         mothership.
         Then, update the rect and the rounded position.
 
-        list[Missile] missileList : the list of all the missiles
         list foesList : the list of all the ennemies and the mines
-        tuple[int] playerPos : position of the player
         """
         #Check for transformation
         if self.transformTime == 0:

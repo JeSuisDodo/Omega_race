@@ -30,7 +30,13 @@ class Mine:
         """
         return self.rect
     
-    def getHitbox(self)->tuple:
+    def getCo(self)->tuple[int]:
+        """
+        Return a tuple of coordinates
+        """
+        return (self.x-16,self.y-16)
+    
+    def getHitbox(self)->tuple[int]:
         """
         Return the top-left and bottom right coordinates of
         the rect made by the missile
